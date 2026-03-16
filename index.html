@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Futsal Manager">
+  <meta name="application-name" content="Futsal Manager">
+  <meta name="theme-color" content="#080d12">
+  <meta name="msapplication-TileColor" content="#080d12">
+  <meta name="description" content="Gerencie seu clube de futsal — 5 ligas, 35 times, 490+ jogadores reais">
+
+  <title>⚽ Futsal Manager</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Icons -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23080d12'/><text y='.9em' font-size='80' x='10'>⚽</text></svg>">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+
+  <!-- Splash screens iOS -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Nunito+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* Safe area para iPhone com notch */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    /* Evitar scroll bounce no iOS */
+    html, body { overscroll-behavior: none; }
+    /* Evitar text selection acidental */
+    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="splash-screen" id="splash">
+      <div class="splash-glow"></div>
+      <div class="splash-particles" id="splash-particles"></div>
+      <div class="splash-content">
+        <div class="splash-ball-wrap">
+          <span class="splash-ball">⚽</span>
+          <div class="splash-ball-shadow"></div>
+        </div>
+        <div class="splash-logo">FUTSAL<span>MANAGER</span></div>
+        <div class="splash-season">TEMPORADA 2026</div>
+        <div class="splash-tagline">5 Ligas · 35 Times · 490+ Jogadores</div>
+        <div class="splash-bar-wrap">
+          <div class="splash-bar-row">
+            <div class="splash-bar" style="flex:1"><div class="splash-fill" id="splash-fill"></div></div>
+            <span class="splash-progress-pct" id="splash-pct">0%</span>
+          </div>
+          <p class="splash-tip" id="splash-tip">Preparando o vestiário...</p>
+        </div>
+        <div class="splash-leagues">
+          <span>🇧🇷 Brasileirão</span>
+          <span>🇪🇸 LaLiga</span>
+          <span>🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier</span>
+          <span>🇮🇹 Serie A</span>
+          <span>🇵🇹 Liga Portugal</span>
+        </div>
+        <button class="splash-enter-btn" id="splash-enter-btn">
+          <span class="splash-enter-icon">▶</span>
+          <span class="splash-enter-text">ENTRAR</span>
+          <span class="splash-enter-note">🎵 com som</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <style>
+    /* ── SPLASH SCREEN ────────────────────────────────────────── */
+    .splash-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;font-family:'Barlow Condensed',sans-serif;background:#080d12;position:relative;overflow:hidden;transition:opacity .8s ease,transform .8s ease}
+    .splash-screen.fade-out{opacity:0;transform:scale(1.06);pointer-events:none}
+    .splash-glow{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(240,200,74,.12) 0%,rgba(40,200,86,.05) 50%,transparent 70%);pointer-events:none;animation:glowPulse 3s ease-in-out infinite}
+    .splash-particles{position:absolute;inset:0;pointer-events:none}
+    .splash-particle{position:absolute;border-radius:50%;animation:particleFly linear infinite;opacity:0}
+    @keyframes particleFly{0%{opacity:0;transform:translateY(0) scale(0)}10%{opacity:.7}80%{opacity:.4}100%{opacity:0;transform:translateY(-100vh) scale(1.5)}}
+    @keyframes glowPulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}}
+
+    /* Bola com pulsação dupla */
+    .splash-content{display:flex;flex-direction:column;align-items:center;gap:18px;z-index:1}
+    .splash-ball-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
+    .splash-ball{font-size:82px;display:block;
+      animation:ballFloat 2.2s ease-in-out infinite, ballPulse 1.1s ease-in-out infinite;
+      filter:drop-shadow(0 0 36px rgba(240,200,74,.75)) drop-shadow(0 8px 20px rgba(0,0,0,.7))}
+    .splash-ball-shadow{width:64px;height:11px;background:radial-gradient(ellipse,rgba(0,0,0,.55) 0%,transparent 70%);border-radius:50%;margin-top:-10px;animation:shadowPulse 2.2s ease-in-out infinite}
+    @keyframes ballFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-16px) rotate(16deg)}}
+    @keyframes ballPulse{0%,100%{filter:drop-shadow(0 0 28px rgba(240,200,74,.6)) drop-shadow(0 8px 16px rgba(0,0,0,.6))}50%{filter:drop-shadow(0 0 56px rgba(240,200,74,.95)) drop-shadow(0 0 24px rgba(40,200,86,.5)) drop-shadow(0 8px 20px rgba(0,0,0,.7))}}
+    @keyframes shadowPulse{0%,100%{transform:scaleX(1);opacity:.6}50%{transform:scaleX(.65);opacity:.25}}
+
+    .splash-logo{font-size:4.2rem;font-weight:900;letter-spacing:.05em;color:#e4edf6;line-height:.9;text-shadow:0 4px 28px rgba(0,0,0,.7);animation:logoAppear .8s ease forwards}
+    .splash-logo span{color:#f0c84a;text-shadow:0 0 32px rgba(240,200,74,.45)}
+    .splash-season{font-size:13px;color:#f0c84a;letter-spacing:.22em;font-weight:700;text-transform:uppercase;opacity:.82;margin-top:-4px;animation:fadeInDelay .8s .4s ease both}
+    @keyframes logoAppear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeInDelay{from{opacity:0}to{opacity:1}}
+
+    .splash-tagline{font-size:11.5px;color:#3a5a74;letter-spacing:.18em;font-weight:600;text-transform:uppercase;animation:fadeInDelay .8s .2s ease both}
+
+    /* Barra de progresso real — mais grossa e com label percentual */
+    .splash-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:9px;width:280px}
+    .splash-bar{width:100%;height:6px;background:#0f1e2d;border-radius:3px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.06),inset 0 1px 3px rgba(0,0,0,.4)}
+    .splash-fill{height:100%;background:linear-gradient(90deg,#f0c84a,#28c856,#4a90e2);background-size:200% 100%;border-radius:3px;width:0%;transition:width .25s ease;animation:shimmer 2.2s linear infinite}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    .splash-tip{font-size:11px;color:#2e4a61;letter-spacing:.1em;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;min-height:16px;transition:opacity .25s}
+    .splash-progress-pct{font-size:10px;color:#1e3a52;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.08em;min-width:32px;text-align:right;transition:color .3s}
+    .splash-bar-row{display:flex;align-items:center;gap:10px;width:100%}
+
+    .splash-leagues{display:flex;gap:14px;font-size:11px;color:#2e4a61;letter-spacing:.06em;font-weight:700;margin-top:4px;flex-wrap:wrap;justify-content:center;animation:fadeInDelay 1s .6s ease both}
+    .splash-leagues span{transition:color .3s ease,text-shadow .3s ease}
+    .splash-leagues span.active{color:#f0c84a;text-shadow:0 0 12px rgba(240,200,74,.6)}
+
+    /* Botão entrar */
+    .splash-enter-btn{
+      display:flex;align-items:center;gap:12px;
+      margin-top:8px;padding:16px 40px;
+      background:linear-gradient(135deg,#f0c84a,#c9890a);
+      border:none;border-radius:50px;cursor:pointer;
+      font-family:'Barlow Condensed',sans-serif;
+      opacity:0;pointer-events:none;
+      transform:translateY(12px);
+      transition:opacity .5s ease, transform .5s ease, box-shadow .2s;
+      box-shadow:0 6px 28px rgba(240,200,74,.35);
+    }
+    .splash-enter-btn:hover{box-shadow:0 10px 44px rgba(240,200,74,.6);transform:translateY(-2px)!important;}
+    .splash-enter-icon{font-size:1.5rem;color:#000;}
+    .splash-enter-text{font-size:1.4rem;font-weight:900;color:#000;letter-spacing:.1em;}
+    .splash-enter-note{font-size:11px;color:rgba(0,0,0,.6);font-family:'Nunito Sans',sans-serif;font-weight:600;}
+  </style>
+  <script src="logos.js"></script>
+  <script src="players.js"></script>
+  <script src="matchEngine.js"></script>
+  <script src="aiManager.js"></script>
+  <script src="gameState.js"></script>
+  <script src="sounds.js"></script>
+  <script src="matchLive.js"></script>
+  <script src="ui.js"></script>
+  <script src="dragdrop.js"></script>
+  <script src="careerSystems.js"></script>
+  <script src="globalSystems.js"></script>
+  <script>
+    // ── Partículas animadas no loading ──────────────────────────
+    (function() {
+      const container = document.getElementById('splash-particles');
+      if (!container) return;
+      const colors = ['#f0c84a','#28c856','#4a90e2','#e74c3c','#9b59b6','#1abc9c'];
+      for (let i = 0; i < 24; i++) {
+        const p = document.createElement('div');
+        p.className = 'splash-particle';
+        const size = Math.random() * 5 + 2;
+        p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${50+Math.random()*50}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${3+Math.random()*5}s;animation-delay:${Math.random()*4}s`;
+        container.appendChild(p);
+      }
+    })();
+
+    const tips = [
+      'Preparando o vestiário...','Inflando a bola...','Aquecendo os jogadores...',
+      'Revisando táticas...','Verificando o placar...','Ajustando as chuteiras...',
+      'Conversando com o árbitro...','Finalizando o elenco...','Ligando as luzes do estádio...',
+      'Organizando a torcida...','Carregando os dados dos jogadores...','Calibrando o motor de jogo...'
+    ];
+
+    // ── Liga highlight ───────────────────────────────────────────
+    const leagueEls = document.querySelectorAll('.splash-leagues span');
+    let leagueIdx = 0;
+    const leagueTick = setInterval(() => {
+      leagueEls.forEach(l => l.classList.remove('active'));
+      if (leagueEls[leagueIdx]) leagueEls[leagueIdx].classList.add('active');
+      leagueIdx = (leagueIdx + 1) % leagueEls.length;
+    }, 380);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const fill  = document.getElementById('splash-fill');
+      const tipEl = document.getElementById('splash-tip');
+      const pctEl = document.getElementById('splash-pct');
+      let prog = 0, tipIdx = 0;
+
+      const tick = setInterval(() => {
+        prog += Math.random() * 10 + 2;
+        const clamped = Math.min(prog, 92);
+        if (fill) fill.style.width = clamped + '%';
+        if (pctEl) { pctEl.textContent = Math.round(clamped) + '%'; pctEl.style.color = clamped > 60 ? '#f0c84a' : '#1e3a52'; }
+        if (tipEl && prog > tipIdx * 10) {
+          tipEl.style.opacity = '0';
+          const nextTip = tips[tipIdx % tips.length];
+          setTimeout(() => { if (tipEl) { tipEl.textContent = nextTip; tipEl.style.opacity = '1'; } }, 150);
+          tipIdx++;
+        }
+        if (prog > 92) clearInterval(tick);
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(leagueTick);
+        leagueEls.forEach(l => l.classList.remove('active'));
+        try {
+          if (fill) fill.style.width = '100%';
+          if (pctEl) { pctEl.textContent = '100%'; pctEl.style.color = '#28c856'; }
+          if (tipEl) { tipEl.style.opacity='0'; setTimeout(()=>{ if(tipEl){tipEl.textContent='Pronto! ✔ Clique para entrar';tipEl.style.opacity='1';} },150); }
+
+          // Mostrar botão de entrada — clique = gesto do usuário = áudio liberado
+          const enterBtn = document.getElementById('splash-enter-btn');
+          if (enterBtn) {
+            enterBtn.style.opacity = '1';
+            enterBtn.style.pointerEvents = 'auto';
+            enterBtn.style.transform = 'translateY(0)';
+          }
+
+          const doEnter = () => {
+            // GESTO DO USUÁRIO — cria AudioContext AQUI, único lugar válido
+            // Limpar qualquer save corrompido de volume antes de tudo
+            try {
+              const saved = JSON.parse(localStorage.getItem('fm_audio') || '{}');
+              // Se volume estava em 0 ou muito baixo, resetar
+              if (!saved.musicVolume || saved.musicVolume < 0.05) {
+                saved.musicVolume = 0.22;
+                localStorage.setItem('fm_audio', JSON.stringify(saved));
+              }
+            } catch(_) {}
+
+            // Iniciar BGM imediatamente no gesto
+            if (window.BGM) {
+              window.BGM.setVolume(0.65);
+              window.BGM.start();
+            }
+
+            const splash = document.getElementById('splash');
+            if (splash) splash.classList.add('fade-out');
+            setTimeout(() => {
+              const gameState = new GameState();
+              const ui = new UI(gameState);
+              window.gameState = gameState;
+              window.ui = ui;
+
+              // ── Bridge window.audio → SFX / BGM ─────────────────
+              window.audio = {
+                _musicEnabled: true,
+                _sfxEnabled: true,
+                musicVolume: 0.65,
+                sfxVolume: 0.55,
+                get musicEnabled() { return this._musicEnabled; },
+                get sfxEnabled()   { return this._sfxEnabled; },
+                click()    { if (this._sfxEnabled && window.SFX) window.SFX.click(); },
+                navigate() { if (this._sfxEnabled && window.SFX) window.SFX.nav(); },
+                kickoff()  { if (this._sfxEnabled && window.SFX) window.SFX.kickoff(); },
+                win()      { if (this._sfxEnabled && window.SFX) window.SFX.win(); },
+                lose()     { if (this._sfxEnabled && window.SFX) window.SFX.loss(); },
+                whistle()  { if (this._sfxEnabled && window.SFX) window.SFX.whistle(); },
+                success()  { if (this._sfxEnabled && window.SFX) window.SFX.success(); },
+                error()    { if (this._sfxEnabled && window.SFX) window.SFX.error(); },
+                transfer() { if (this._sfxEnabled && window.SFX) window.SFX.transfer(); },
+                goal()     { if (this._sfxEnabled && window.SFX) window.SFX.goal(); },
+                playMenuMusic() {
+                  if (this._musicEnabled && window.BGM && !window.BGM.isPlaying()) window.BGM.start();
+                },
+                playGameMusic() {
+                  if (this._musicEnabled && window.BGM && !window.BGM.isPlaying()) window.BGM.start();
+                },
+                toggleMusic(on) {
+                  this._musicEnabled = on;
+                  if (!on && window.BGM) {
+                    window.BGM.stop();
+                    // Suspender contexto de áudio para silêncio imediato
+                    if (window._fmGetCtx) {
+                      const ctx = window._fmGetCtx();
+                      if (ctx && ctx.state === 'running') ctx.suspend();
+                    }
+                  } else if (on && window.BGM) {
+                    // Retomar contexto antes de iniciar
+                    if (window._fmGetCtx) {
+                      const ctx = window._fmGetCtx();
+                      if (ctx && ctx.state === 'suspended') ctx.resume();
+                    }
+                    window.BGM.start();
+                  }
+                  this.saveSettings();
+                },
+                toggleSFX(on) {
+                  this._sfxEnabled = on;
+                  if (window.SFX) window.SFX.setVolume(on ? this.sfxVolume : 0);
+                  this.saveSettings();
+                },
+                setMusicVolume(v) {
+                  this.musicVolume = v;
+                  if (window.BGM) window.BGM.setVolume(v);
+                  this.saveSettings();
+                },
+                setSFXVolume(v) {
+                  this.sfxVolume = v;
+                  if (window.SFX) window.SFX.setVolume(v);
+                  this.saveSettings();
+                },
+                saveSettings() {
+                  try { localStorage.setItem('fm_audio', JSON.stringify({musicEnabled:this._musicEnabled,sfxEnabled:this._sfxEnabled,musicVolume:this.musicVolume,sfxVolume:this.sfxVolume})); } catch(e) {}
+                },
+                loadSettings() {
+                  try {
+                    const s = JSON.parse(localStorage.getItem('fm_audio') || '{}');
+                    if (s.musicEnabled  !== undefined) this._musicEnabled = s.musicEnabled;
+                    if (s.sfxEnabled    !== undefined) this._sfxEnabled   = s.sfxEnabled;
+                    // Volume mínimo 0.10 para não silenciar acidentalmente
+                    if (s.musicVolume !== undefined && s.musicVolume >= 0) {
+                      this.musicVolume = s.musicVolume;
+                      if (window.BGM) window.BGM.setVolume(s.musicVolume);
+                    } else {
+                      // Volume mínimo seguro para Spotify funcionar
+                      this.musicVolume = 0.65;
+                      if (window.BGM) window.BGM.setVolume(0.65);
+                    }
+                    if (s.sfxVolume     !== undefined) { this.sfxVolume = s.sfxVolume; if (window.SFX) window.SFX.setVolume(s.sfxVolume); }
+                    // Se música estava ligada, garantir que está tocando
+                    if (this._musicEnabled && window.BGM && !window.BGM.isPlaying()) window.BGM.start();
+                    // Se música estava desligada, parar qualquer som residual
+                    if (!this._musicEnabled && window.BGM && window.BGM.isPlaying()) window.BGM.stop();
+                  } catch(e) {}
+                }
+              };
+              ui.render('menu');
+            }, 850);
+          };
+
+          if (enterBtn) {
+            enterBtn.addEventListener('click', doEnter, { once: true });
+          } else {
+            // fallback: clique em qualquer lugar
+            document.addEventListener('click', doEnter, { once: true });
+          }
+
+        } catch(err) {
+          document.getElementById('app').innerHTML =
+            '<div style="color:#ff5c5c;padding:40px;font-family:monospace;white-space:pre-wrap;background:#080d12;min-height:100vh"><h2>❌ Erro ao carregar</h2><br>'+err.stack+'</div>';
+        }
+      }, 1500);
+    });
+  </script>
+  <script>
+    // ── SERVICE WORKER (PWA offline) ───────────────────────────
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('✅ SW registrado:', reg.scope);
+        }).catch(err => {
+          console.log('SW erro (normal em file://):', err);
+        });
+      });
+    }
+
+    // ── INSTALAR COMO APP (banner) ─────────────────────────────
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      // Mostrar botão de instalação após 3s no menu
+      setTimeout(() => {
+        if (window.ui && window.ui.currentScreen === 'menu') {
+          const btn = document.createElement('div');
+          btn.id = 'install-pwa-btn';
+          btn.innerHTML = '📲 Instalar como App';
+          btn.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(74,144,226,.95);color:#fff;padding:12px 24px;border-radius:24px;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;cursor:pointer;z-index:9999;box-shadow:0 4px 20px rgba(74,144,226,.4);animation:fadeInDelay .4s ease both';
+          btn.onclick = () => {
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.then(() => { btn.remove(); });
+          };
+          document.body.appendChild(btn);
+          setTimeout(() => btn?.remove(), 8000);
+        }
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
